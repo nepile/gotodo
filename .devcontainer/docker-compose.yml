@@ -1,0 +1,41 @@
+version: '3.8'
+
+volumes:
+  postgres-data:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    # Variabel environment di-hardcode langsung di sini
+    environment:
+      POSTGRES_USER: neville
+      POSTGRES_PASSWORD: 235314166
+      POSTGRES_DB: devcon_db
+      POSTGRES_HOSTNAME: db
+
+    volumes:
+      # Diperbaiki: Mundur 1 tingkat (..) agar menunjuk tepat ke root folder project (gotodo)
+      - ..:/workspaces:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:db
+
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    
+    # Variabel environment di-hardcode langsung di sini
+    environment:
+      POSTGRES_USER: neville
+      POSTGRES_PASSWORD: 235314166
+      POSTGRES_DB: devcon_db
+
+    volumes:
+      # Diperbaiki: Mengarah langsung ke sub-folder /data agar tidak bentrok saat inisialisasi awal
+      - postgres-data:/var/lib/postgresql/data
